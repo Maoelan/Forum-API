@@ -12,7 +12,6 @@ describe('AddThreadUseCase', () => {
     const useCasePayload = {
       title: 'the owl',
       body: 'a mysterious owl watches silently from the treetops, its eyes glowing in the moonlit forest.',
-      owner: 'maoelana',
     };
 
     const mockAddedThread = new AddedThread({
@@ -39,14 +38,13 @@ describe('AddThreadUseCase', () => {
     // Assert
     expect(addedThread).toStrictEqual(new AddedThread({
       id: 'thread-1',
-      title: useCasePayload.title,
-      owner: useCasePayload.owner,
+      title: 'the owl',
+      owner: 'maoelana',
     }));
 
     expect(mockThreadRepository.addThread).toHaveBeenCalledWith('maoelana', new NewThread({
       title: useCasePayload.title,
       body: useCasePayload.body,
-      owner: useCasePayload.owner,
     }));
   });
 });

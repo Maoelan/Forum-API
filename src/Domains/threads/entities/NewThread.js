@@ -2,13 +2,13 @@ class NewThread {
   constructor(payload) {
     this._verifyPayload(payload);
 
-    const { title, body, owner } = payload;
+    const { title, body } = payload;
 
     this.title = title;
     this.body = body;
   }
 
-  _verifyPayload({ title, body, owner }) {
+  _verifyPayload({ title, body }) {
     if (!title || !body ) {
       throw new Error('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
     }
