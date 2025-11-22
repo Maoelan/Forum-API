@@ -16,7 +16,7 @@
     "migrate:test": "node-pg-migrate -f config/database/test.json"
   },
   "keywords": [],
-  "author": "",
+  "author": "Maulana Muhammad (https://github.com/maoelan)",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^21.4.4",
