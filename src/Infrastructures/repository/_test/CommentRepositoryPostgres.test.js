@@ -11,7 +11,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 describe('CommentRepositoryPostgres', () => {
   const fakeIdGenerator = () => '1'; // stub!
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
@@ -34,9 +34,9 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action
       const addedComment = await commentRepositoryPostgres.addComment(
-        'user-1',
-        'thread-1',
         newComment,
+        'thread-1',
+        'user-1',
       );
 
       // Assert
