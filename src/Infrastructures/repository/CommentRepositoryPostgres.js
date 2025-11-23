@@ -1,4 +1,4 @@
-const NotFoudnError = require('../../Commons/exceptions/NotFoundError');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
 const CommentsRepository = require('../../Domains/comments/CommentRepository');
@@ -10,9 +10,9 @@ class CommentRepositoryPostgres extends CommentsRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addComment(userId, threadId, newComment) {
+  async addComment(newComment, threadId, userId) {
     const { content } = newComment;
-    const id = `comment-${this._idGenerator()}`;
+    const id = `comment-${this._idGenerator(16)}`;
     const date = new Date();
 
     const query = {
@@ -33,7 +33,7 @@ class CommentRepositoryPostgres extends CommentsRepository {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoudnError('Komentar tidak ditemukan');
+      throw new NotFoundError('Komentar tidak ditemukan');
     }
 
     if (result.rows[0].owner !== owner) {
@@ -49,7 +49,7 @@ class CommentRepositoryPostgres extends CommentsRepository {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoudnError('Komentar tidak ditemukan pada thread ini');
+      throw new NotFoundError('Komentar tidak ditemukan pada thread ini');
     }
   }
 

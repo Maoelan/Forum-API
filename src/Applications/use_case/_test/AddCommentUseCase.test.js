@@ -38,16 +38,20 @@ describe('AddCommentUseCase', () => {
     });
 
     // Action
-    const addedComment = await addCommentUseCase.execute('maoelana', 'thread-1', useCasePayload);
+    const addedComment = await addCommentUseCase.execute({
+      owner: 'maoelana',
+      threadId: 'thread-1',
+      content: useCasePayload.content,
+    });
 
     // Assert
     expect(addedComment).toStrictEqual(mockAddedComment);
 
     expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith('thread-1');
     expect(mockCommentRepository.addComment).toHaveBeenCalledWith(
-      'maoelana',
-      'thread-1',
       new NewComment({ content: useCasePayload.content }),
+      'thread-1',
+      'maoelana',
     );
   });
 });
