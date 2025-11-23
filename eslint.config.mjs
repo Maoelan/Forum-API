@@ -21,7 +21,7 @@ export default defineConfig([
       semi: ["error", "always"],
       "eol-last": ["error", "always"],
       indent: ["error", 2, { SwitchCase: 1 }],
-      camelcase: ["error", { properties: "never", ignoreDestructuring: true }],
+      "camelcase": ["error", { properties: "never", ignoreDestructuring: true, allow: ["is_delete"] }],
       "import/no-extraneous-dependencies": "off",
       "max-len": [
         "error",
@@ -35,7 +35,7 @@ export default defineConfig([
       "no-underscore-dangle": [
         "error",
         {
-          allow: ["_export", "_directories"],
+          allow: ["_export", "_directories", "is_delete"],
           allowAfterThis: true,
         },
       ],
