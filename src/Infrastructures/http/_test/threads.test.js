@@ -1,10 +1,10 @@
-const pool = require('../../database/postgres/pool');
+const pool = require('../../database/postgres/pool.js');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper.js');
-const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
-const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
-const ServerTestHelper = require('../../../../tests/ServerTestHelper');
-const container = require('../../container');
-const createServer = require('../createServer');
+const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper.js');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper.js');
+const ServerTestHelper = require('../../../../tests/ServerTestHelper.js');
+const container = require('../../container.js');
+const createServer = require('../createServer.js');
 
 describe('/threads endpoint', () => {
   let server;
@@ -63,7 +63,6 @@ describe('/threads endpoint', () => {
       },
     });
 
-    // Assert
     const responseJson = JSON.parse(response.payload);
     expect(response.statusCode).toBe(201);
     expect(responseJson.status).toBe('success');
