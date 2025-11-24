@@ -5,6 +5,9 @@ const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const AddCommentUseCase = require('../AddCommentUseCase');
 
 describe('AddCommentUseCase', () => {
+  /**
+   * Menguji apakah use case mampu mengoskertasikan langkah demi langkah dengan benar.
+   */
   it('should orchestrate adding comment correctly', async () => {
     // Arrange
     const useCasePayload = {
@@ -26,7 +29,6 @@ describe('AddCommentUseCase', () => {
     /** mocking needed function */
     mockThreadRepository.verifyThreadExists = jest.fn()
       .mockResolvedValue();
-
     mockCommentRepository.addComment = jest.fn()
       .mockResolvedValue(mockAddedComment);
 
