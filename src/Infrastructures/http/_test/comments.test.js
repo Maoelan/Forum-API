@@ -1,13 +1,13 @@
-const pool = require('../../database/postgres/pool');
-const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
-const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
-const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
-const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
-const ServerTestHelper = require('../../../../tests/ServerTestHelper');
-const container = require('../../container');
-const createServer = require('../createServer');
+const pool = require('../../database/postgres/pool.js');
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper.js');
+const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper.js');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper.js');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper.js');
+const ServerTestHelper = require('../../../../tests/ServerTestHelper.js');
+const container = require('../../container.js');
+const createServer = require('../createServer.js');
 
-describe('/comments endpoint', () => {
+describe('/threads/{threadId}/comments endpoint', () => {
   let server;
 
   beforeAll(async () => {
@@ -25,7 +25,8 @@ describe('/comments endpoint', () => {
     await CommentsTableTestHelper.cleanTable();
   });
 
-  it('should response 201 and persisted comment', async () => {
+  it('should respond 201 and persisted comment', async () => {
+    // Arrange
     const payloadUser = { username: 'maoelana', password: 'secret', fullname: 'Maulana Muhammad' };
     await server.inject({ method: 'POST', url: '/users', payload: payloadUser });
 
@@ -47,6 +48,7 @@ describe('/comments endpoint', () => {
 
     const payloadComment = { content: 'this is a comment' };
 
+    // Action
     const response = await server.inject({
       method: 'POST',
       url: `/threads/${threadId}/comments`,
@@ -54,6 +56,7 @@ describe('/comments endpoint', () => {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
+    // Assert
     const responseJson = JSON.parse(response.payload);
     expect(response.statusCode).toBe(201);
     expect(responseJson.status).toBe('success');
@@ -64,8 +67,9 @@ describe('/comments endpoint', () => {
     expect(comments).toHaveLength(1);
   });
 
-  it('should response 400 when payload not contain needed property', async () => {
+  it('should respond 400 when payload not contain needed property', async () => {
     const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'maoelana' });
+
     const response = await server.inject({
       method: 'POST',
       url: '/threads/thread-123/comments',
@@ -79,8 +83,9 @@ describe('/comments endpoint', () => {
     expect(responseJson.message).toBe('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada');
   });
 
-  it('should response 400 when payload not meet data type specification', async () => {
+  it('should respond 400 when payload not meet data type specification', async () => {
     const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'maoelana' });
+
     const response = await server.inject({
       method: 'POST',
       url: '/threads/thread-123/comments',
@@ -94,7 +99,7 @@ describe('/comments endpoint', () => {
     expect(responseJson.message).toBe('komentar harus berupa string');
   });
 
-  it('should response 401 when no authorization header', async () => {
+  it('should respond 401 when no authorization header', async () => {
     const response = await server.inject({
       method: 'POST',
       url: '/threads/thread-123/comments',
@@ -107,8 +112,9 @@ describe('/comments endpoint', () => {
     expect(responseJson.message).toMatch(/Missing authentication|Invalid token/);
   });
 
-  it('should response 404 when thread not found', async () => {
+  it('should respond 404 when thread not found', async () => {
     const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'maoelana' });
+
     const response = await server.inject({
       method: 'POST',
       url: '/threads/thread-999/comments',

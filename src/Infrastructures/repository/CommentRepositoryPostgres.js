@@ -1,42 +1,42 @@
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
-const CommentsRepository = require('../../Domains/comments/CommentRepository');
+const CommentRepository = require('../../Domains/comments/CommentRepository');
 
-class CommentRepositoryPostgres extends CommentsRepository {
+class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
   }
 
-  async addComment(newComment, threadId, userId) {
+  async addComment(ownerId, threadId, newComment) {
     const { content } = newComment;
     const id = `comment-${this._idGenerator(16)}`;
-    const date = new Date();
+    const date = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO comments (id, content, owner, date, thread_id) VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
-      values: [id, content, userId, date, threadId],
+      text: 'INSERT INTO comments (id, content, owner, date, thread_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      values: [id, content, ownerId, date, threadId],
     };
 
     const result = await this._pool.query(query);
-
     return new AddedComment(result.rows[0]);
   }
 
-  async verifyCommentOwner(commentId, owner) {
+  async verifyCommentOwner(commentId, ownerId) {
     const query = {
       text: 'SELECT owner FROM comments WHERE id = $1',
       values: [commentId],
     };
+
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
       throw new NotFoundError('Komentar tidak ditemukan');
     }
 
-    if (result.rows[0].owner !== owner) {
+    if (result.rows[0].owner !== ownerId) {
       throw new AuthorizationError('Anda bukan pemilik komentar ini');
     }
   }
@@ -46,6 +46,7 @@ class CommentRepositoryPostgres extends CommentsRepository {
       text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2',
       values: [commentId, threadId],
     };
+
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
