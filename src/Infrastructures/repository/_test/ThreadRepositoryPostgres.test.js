@@ -21,21 +21,21 @@ describe('ThreadRepositoryPostgres', () => {
       const userId = 'user-123';
       await UsersTableTestHelper.addUser({ id: userId });
 
-      const fakeIdGenerator = () => '1';
+      const fakeIdGenerator = () => '123';
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
 
       const newThread = new NewThread({
-        title: 'the owl',
-        body: 'a mysterious owl watches silently from the treetops, its eyes glowing in the moonlit forest.',
+        title: 'sebuah title',
+        body: 'sebuah body',
       });
 
       // Action & Assert
       const addedThread = await threadRepositoryPostgres.addThread(userId, newThread);
 
-      const thread = await ThreadsTableTestHelper.findThreadById('thread-1');
+      const thread = await ThreadsTableTestHelper.findThreadById('thread-123');
       expect(thread).toHaveLength(1);
       expect(addedThread).toStrictEqual(new AddedThread({
-        id: 'thread-1',
+        id: 'thread-123',
         title: newThread.title,
         owner: userId,
       }));
