@@ -49,8 +49,8 @@ describe('/threads endpoint', () => {
     const { accessToken } = JSON.parse(responseAuth.payload).data;
 
     const payloadThread = {
-      title: 'thread title',
-      body: 'thread body',
+      title: 'sebuah thread',
+      body: 'sebuah body',
     };
 
     // Action
@@ -79,7 +79,7 @@ describe('/threads endpoint', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/threads',
-      payload: { title: 'the owl' },
+      payload: { title: 'sebuah title' },
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
@@ -109,7 +109,7 @@ describe('/threads endpoint', () => {
     const response = await server.inject({
       method: 'POST',
       url: '/threads',
-      payload: { title: 'the owl', body: 'body owl' },
+      payload: { title: 'sebuah title', body: 'sebuah body' },
     });
 
     const responseJson = JSON.parse(response.payload);

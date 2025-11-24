@@ -11,13 +11,13 @@ describe('AddCommentUseCase', () => {
   it('should orchestrate adding comment correctly', async () => {
     // Arrange
     const useCasePayload = {
-      threadId: 'thread-1',
-      content: 'Wow, the owl watching silently in the moonlight is so eerie and mysterious!',
+      threadId: 'thread-123',
+      content: 'sebuah content',
     };
-    const ownerId = 'maoelana';
+    const ownerId = 'user-123';
 
     const mockAddedComment = new AddedComment({
-      id: 'comment-1',
+      id: 'comment-123',
       content: useCasePayload.content,
       owner: ownerId,
     });

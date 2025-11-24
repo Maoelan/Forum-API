@@ -37,7 +37,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
     });
     const { accessToken } = JSON.parse(responseAuth.payload).data;
 
-    const payloadThread = { title: 'thread title', body: 'thread body' };
+    const payloadThread = { title: 'sebuah thread', body: 'sebuah body' };
     const responseThread = await server.inject({
       method: 'POST',
       url: '/threads',
@@ -142,7 +142,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       const threadResponse = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: { title: 'thread title', body: 'thread body' },
+        payload: { title: 'sebuah thread', body: 'sebuah body' },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
@@ -176,7 +176,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       const threadResponse = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: { title: 'thread title', body: 'thread body' },
+        payload: { title: 'sebuah thread', body: 'sebuah body' },
         headers: { Authorization: `Bearer ${owner}` },
       });
       const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
@@ -205,7 +205,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       const threadResponse = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: { title: 'thread title', body: 'thread body' },
+        payload: { title: 'sebuah thread', body: 'sebuah body' },
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
