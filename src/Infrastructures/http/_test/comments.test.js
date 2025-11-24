@@ -127,4 +127,98 @@ describe('/threads/{threadId}/comments endpoint', () => {
     expect(responseJson.status).toBe('fail');
     expect(responseJson.message).toBe('Thread tidak ditemukan');
   });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should respond 200 when owner deletes their comment', async () => {
+      const payloadUser = { username: 'deleter', password: 'secret', fullname: 'Delete Owner' };
+      await server.inject({ method: 'POST', url: '/users', payload: payloadUser });
+      const authResponse = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: { username: payloadUser.username, password: payloadUser.password },
+      });
+      const { accessToken } = JSON.parse(authResponse.payload).data;
+
+      const threadResponse = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: { title: 'thread title', body: 'thread body' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
+
+      const commentResponse = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: { content: 'comment to delete' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const commentId = JSON.parse(commentResponse.payload).data.addedComment.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toBe('success');
+
+      const comments = await CommentsTableTestHelper.findCommentById(commentId);
+      expect(comments[0].is_delete).toBe(true);
+    });
+
+    it('should respond 403 when user is not the owner', async () => {
+      const owner = await ServerTestHelper.getAccessToken({ server, username: 'ownerUser' });
+      const intruder = await ServerTestHelper.getAccessToken({ server, username: 'otherUser' });
+
+      const threadResponse = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: { title: 'thread title', body: 'thread body' },
+        headers: { Authorization: `Bearer ${owner}` },
+      });
+      const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
+
+      const commentResponse = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: { content: 'owned comment' },
+        headers: { Authorization: `Bearer ${owner}` },
+      });
+      const commentId = JSON.parse(commentResponse.payload).data.addedComment.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: { Authorization: `Bearer ${intruder}` },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(403);
+      expect(responseJson.status).toBe('fail');
+    });
+
+    it('should respond 404 when comment not found', async () => {
+      const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'tester' });
+      const threadResponse = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: { title: 'thread title', body: 'thread body' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const threadId = JSON.parse(threadResponse.payload).data.addedThread.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-unknown`,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toBe('fail');
+    });
+  });
 });
