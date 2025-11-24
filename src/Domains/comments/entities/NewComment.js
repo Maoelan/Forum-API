@@ -3,7 +3,6 @@ class NewComment {
     this._verifyPayload(payload);
 
     const { content } = payload;
-
     this.content = content;
   }
 
