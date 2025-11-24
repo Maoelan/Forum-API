@@ -102,4 +102,47 @@ describe('CommentRepositoryPostgres', () => {
       expect(comment[0].is_delete).toBe(true);
     });
   });
+
+  describe('getCommentByThreadId', () => {
+    it('should return ordered comment with username and deletion flag', async () => {
+      await UsersTableTestHelper.addUser({ id: 'user-1', username: 'maoelana' });
+      await UsersTableTestHelper.addUser({ id: 'user-2', username: 'ajik' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-1', owner: 'user-1' });
+
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-1',
+        owner: 'user-2',
+        threadId: 'thread-1',
+        content: 'first comment',
+        date: '2021-08-08T07:22:33.555Z',
+        isDelete: false,
+      });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-2',
+        owner: 'user-1',
+        threadId: 'thread-1',
+        content: 'second comment',
+        date: '2021-08-08T07:26:21.338Z',
+        isDelete: true,
+      });
+      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      const comments = await repo.getCommentByThreadId('thread-1');
+
+      expect(comments).toHaveLength(2);
+      expect(comments[0]).toMatchObject({
+        id: 'comment-1',
+        username: 'ajik',
+        content: 'first comment',
+        is_delete: false,
+      });
+      expect(comments[0].date).toBeInstanceOf(Date);
+      expect(comments[1]).toMatchObject({
+        id: 'comment-2',
+        username: 'maoelana',
+        content: 'second comment',
+        is_delete: true,
+      });
+      expect(comments[1].date).toBeInstanceOf(Date);
+    });
+  });
 });
