@@ -4,8 +4,8 @@ describe('a AddedThread entities', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
-      id: 'thread-1',
-      title: 'the owl',
+      id: 'thread-123',
+      title: 'sebuah thread',
     };
 
     // Action and Assert
@@ -17,7 +17,7 @@ describe('a AddedThread entities', () => {
     const payload = {
       id: 123,
       title: true,
-      owner: 'maoelana',
+      owner: 'user-123',
     };
 
     // Action and Assert
@@ -27,9 +27,9 @@ describe('a AddedThread entities', () => {
   it('should create addedThread object correctly', () => {
     // Arrange
     const payload = {
-      id: 'thread-1',
-      title: 'the owl',
-      owner: 'maoelana',
+      id: 'thread-123',
+      title: 'sebuah thread',
+      owner: 'user-123',
     };
 
     // Action

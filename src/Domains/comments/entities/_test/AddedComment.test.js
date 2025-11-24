@@ -4,8 +4,8 @@ describe('an AddedComment entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
-      id: 'comment-1',
-      content: 'Wow, the owl watching silently in the moonlight is so eerie and mysterious!',
+      id: 'comment-123',
+      content: 'sebuah content',
     };
 
     // Action & Assert
@@ -17,7 +17,7 @@ describe('an AddedComment entity', () => {
     const payload = {
       id: 123,
       content: true,
-      owner: 'maoelana',
+      owner: 'user-123',
     };
 
     // Action & Assert
@@ -27,9 +27,9 @@ describe('an AddedComment entity', () => {
   it('should create AddedComment object correctly', () => {
     // Arrange
     const payload = {
-      id: 'comment-1',
-      content: 'Wow, the owl watching silently in the moonlight is so eerie and mysterious!',
-      owner: 'maoelana',
+      id: 'comment-123',
+      content: 'sebuah content',
+      owner: 'user-123',
     };
 
     // Action

@@ -10,14 +10,14 @@ describe('AddThreadUseCase', () => {
   it('should orchestrating the add thread action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      title: 'the owl',
-      body: 'a mysterious owl watches silently from the treetops, its eyes glowing in the moonlit forest.',
+      title: 'sebuah title',
+      body: 'sebuah body',
     };
 
     const mockAddedThread = new AddedThread({
-      id: 'thread-1',
-      title: 'the owl',
-      owner: 'maoelana',
+      id: 'thread-123',
+      title: 'sebuah title',
+      owner: 'user-123',
     });
 
     /** creating dependency of use case */
@@ -37,9 +37,9 @@ describe('AddThreadUseCase', () => {
 
     // Assert
     expect(addedThread).toStrictEqual(new AddedThread({
-      id: 'thread-1',
-      title: 'the owl',
-      owner: 'maoelana',
+      id: 'thread-123',
+      title: 'sebuah title',
+      owner: 'user-123',
     }));
 
     expect(mockThreadRepository.addThread).toHaveBeenCalledWith('maoelana', new NewThread({
