@@ -126,7 +126,7 @@ describe('CommentRepositoryPostgres', () => {
         isDelete: true,
       });
       const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-      const comments = await repo.getCommentByThreadId('thread-123');
+      const comments = await repo.getCommentsByThreadId('thread-123');
 
       expect(comments).toHaveLength(2);
       expect(comments[0]).toMatchObject({
