@@ -4,8 +4,8 @@ describe('a NewThread entities', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
-      id: 'thread-1',
-      title: 'the owl',
+      id: 'thread-123',
+      title: 'sebuah thread',
     };
 
     // Action and Assert
@@ -26,8 +26,8 @@ describe('a NewThread entities', () => {
   it('should create newThread object correctly', () => {
     // Arrange
     const payload = {
-      title: 'the Owl',
-      body: 'a mysterious owl watches silently from the treetops, its eyes glowing in the moonlit forest.',
+      title: 'sebuah thread',
+      body: 'sebuah body',
     };
 
     // Action

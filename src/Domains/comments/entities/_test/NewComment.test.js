@@ -22,7 +22,7 @@ describe('a NewComment entity', () => {
   it('should create NewComment object correctly', () => {
     // Arrange
     const payload = {
-      content: 'Wow, the owl watching silently in the moonlight is so eerie and mysterious!',
+      content: 'sebuah content',
     };
 
     // Action
