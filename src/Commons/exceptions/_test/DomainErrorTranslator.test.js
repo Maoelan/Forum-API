@@ -1,9 +1,9 @@
-// DomainErrorTranslator.test.js
 const DomainErrorTranslator = require('../DomainErrorTranslator');
 const InvariantError = require('../InvariantError');
 
 describe('DomainErrorTranslator', () => {
   it('should translate known errors correctly', () => {
+    // Arrange & Act & Assert
     expect(
       DomainErrorTranslator.translate(
         new Error('REGISTER_USER.NOT_CONTAIN_NEEDED_PROPERTY'),
