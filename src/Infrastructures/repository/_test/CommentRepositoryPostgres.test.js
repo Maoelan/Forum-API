@@ -10,6 +10,11 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 describe('CommentRepositoryPostgres', () => {
   const fakeIdGenerator = () => '123';
+  let repo;
+
+  beforeEach(() => {
+    repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+  });
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
@@ -23,14 +28,15 @@ describe('CommentRepositoryPostgres', () => {
 
   describe('addComment', () => {
     it('should persist new comment and return added comment correctly', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      const newComment = new NewComment({ content: 'sebuah content' });
 
-      const newComment = new NewComment({ content: 'Wow, the owl watching silently...' });
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
-
+      // Act
       const addedComment = await repo.addComment('user-123', 'thread-123', newComment);
 
+      // Assert
       const comment = await CommentsTableTestHelper.findCommentById('comment-123');
       expect(comment).toHaveLength(1);
       expect(addedComment).toStrictEqual(
@@ -41,70 +47,86 @@ describe('CommentRepositoryPostgres', () => {
 
   describe('verifyCommentOwner', () => {
     it('should throw NotFoundError if comment does not exist', async () => {
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
       await expect(repo.verifyCommentOwner('comment-404', 'user-123')).rejects.toThrow(NotFoundError);
     });
 
     it('should throw AuthorizationError if comment is not owned by user', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await UsersTableTestHelper.addUser({ id: 'user-456', username: 'ajik' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
       await CommentsTableTestHelper.addComment({
-        id: 'comment-123', content: 'Wow...', owner: 'user-123', threadId: 'thread-123',
+        id: 'comment-123',
+        content: 'sebuah content',
+        owner: 'user-123',
+        threadId: 'thread-123',
       });
 
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Act & Assert
       await expect(repo.verifyCommentOwner('comment-123', 'user-456')).rejects.toThrow(AuthorizationError);
     });
 
     it('should not throw error if comment is owned by user', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
       await CommentsTableTestHelper.addComment({
-        id: 'comment-123', content: 'Wow...', owner: 'user-123', threadId: 'thread-123',
+        id: 'comment-123',
+        content: 'sebuah content',
+        owner: 'user-123',
+        threadId: 'thread-123',
       });
 
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Act & Assert
       await expect(repo.verifyCommentOwner('comment-123', 'user-123')).resolves.not.toThrow();
     });
   });
 
   describe('checkCommentExists', () => {
     it('should throw NotFoundError if comment not exist in thread', async () => {
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
       await expect(repo.checkCommentExists('comment-404', 'thread-123')).rejects.toThrow(NotFoundError);
     });
 
     it('should not throw error if comment exists in thread', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
       await CommentsTableTestHelper.addComment({
-        id: 'comment-123', content: 'Wow...', owner: 'user-123', threadId: 'thread-123',
+        id: 'comment-123',
+        content: 'sebuah content',
+        owner: 'user-123',
+        threadId: 'thread-123',
       });
 
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Act & Assert
       await expect(repo.checkCommentExists('comment-123', 'thread-123')).resolves.not.toThrow();
     });
   });
 
   describe('deleteComment', () => {
     it('should soft delete the comment', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
       await CommentsTableTestHelper.addComment({
-        id: 'comment-123', content: 'Wow...', owner: 'user-123', threadId: 'thread-123',
+        id: 'comment-123',
+        content: 'sebuah content',
+        owner: 'user-123',
+        threadId: 'thread-123',
       });
 
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+      // Act
       await repo.deleteComment('comment-123');
 
+      // Assert
       const comment = await CommentsTableTestHelper.findCommentById('comment-123');
       expect(comment[0].is_delete).toBe(true);
     });
   });
 
-  describe('getCommentByThreadId', () => {
-    it('should return ordered comment with username and deletion flag', async () => {
+  describe('getCommentsByThreadId', () => {
+    it('should return ordered comments with username and deletion flag', async () => {
+      // Arrange
       await UsersTableTestHelper.addUser({ id: 'user-123', username: 'maoelana' });
       await UsersTableTestHelper.addUser({ id: 'user-456', username: 'ajik' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
@@ -125,9 +147,11 @@ describe('CommentRepositoryPostgres', () => {
         date: '2021-08-08T07:26:21.338Z',
         isDelete: true,
       });
-      const repo = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Act
       const comments = await repo.getCommentsByThreadId('thread-123');
 
+      // Assert
       expect(comments).toHaveLength(2);
       expect(comments[0]).toMatchObject({
         id: 'comment-123',
