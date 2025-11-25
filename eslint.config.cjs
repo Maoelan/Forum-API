@@ -1,15 +1,14 @@
-import js from "@eslint/js";
-import globals from "globals";
-import { defineConfig } from "eslint/config";
+const js = require("@eslint/js");
+const globals = require("globals");
 
-export default defineConfig([
+module.exports = [
   {
-    files: ["**/*.{js,mjs,cjs}"],
+    files: ["**/*.{js,cjs}"],
     ...js.configs.recommended,
 
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: "module",
+      sourceType: "script",
       globals: {
         ...globals.node,
         ...globals.es2022,
@@ -21,7 +20,7 @@ export default defineConfig([
       semi: ["error", "always"],
       "eol-last": ["error", "always"],
       indent: ["error", 2, { SwitchCase: 1 }],
-      "camelcase": ["error", { properties: "never", ignoreDestructuring: true, allow: ["is_delete"] }],
+      camelcase: ["error", { properties: "never", ignoreDestructuring: true, allow: ["is_delete"] }],
       "import/no-extraneous-dependencies": "off",
       "max-len": [
         "error",
@@ -42,6 +41,15 @@ export default defineConfig([
       "no-trailing-spaces": ["error"],
       "no-multiple-empty-lines": ["error", { max: 1, maxEOF: 1 }],
       "comma-dangle": ["error", "always-multiline"],
+
+      "no-unused-vars": [
+        "error",
+        {
+          vars: "all",
+          args: "all",
+          ignoreRestSiblings: true,
+        },
+      ],
     },
   },
-]);
+];

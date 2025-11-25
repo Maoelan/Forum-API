@@ -1,5 +1,4 @@
 const CommentDetail = require('../CommentDetail');
-const ReplyDetail = require('../../../replies/entities/ReplyDetail');
 
 describe('CommentDetail entity', () => {
   it('should create CommentDetail correctly', () => {
