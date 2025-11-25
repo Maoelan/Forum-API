@@ -118,4 +118,88 @@ describe('/threads endpoint', () => {
     expect(responseJson.message).toBeDefined();
     expect(responseJson.message).toMatch(/Missing authentication|Invalid token/);
   });
+
+  describe('when GET /threads/{threadId}', () => {
+    it('should respond 200 and return detail thread with comments', async () => {
+      const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'maoelana' });
+
+      const createThreadResponse = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: { title: 'sebuah thread', body: 'sebuah body thread' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const threadId = JSON.parse(createThreadResponse.payload).data.addedThread.id;
+
+      await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: { content: 'sebuah comment' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toBe('success');
+      expect(responseJson.data.thread).toMatchObject({
+        id: threadId,
+        title: 'sebuah thread',
+        body: 'sebuah body thread',
+        username: 'maoelana',
+      });
+      expect(responseJson.data.thread.comments).toHaveLength(1);
+      expect(responseJson.data.thread.comments[0].content).toBe('sebuah comment');
+    });
+
+    it('should respond 200 and mask deleted comment content', async () => {
+      const accessToken = await ServerTestHelper.getAccessToken({ server, username: 'zahra' });
+
+      const createThreadResponse = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: { title: 'another thread', body: 'another body' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const threadId = JSON.parse(createThreadResponse.payload).data.addedThread.id;
+
+      const commentResponse = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: { content: 'akan dihapus' },
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const commentId = JSON.parse(commentResponse.payload).data.addedComment.id;
+
+      await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.data.thread.comments[0].content).toBe('**komentar telah dihapus**');
+    });
+
+    it('should respond 404 when thread not found', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/threads/thread-xyz',
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toBe('fail');
+    });
+  });
 });

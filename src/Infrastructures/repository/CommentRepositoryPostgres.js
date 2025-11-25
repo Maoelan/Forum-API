@@ -63,7 +63,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     await this._pool.query(query);
   }
 
-  async getCommentByThreadId(threadId) {
+  async getCommentsByThreadId(threadId) {
     const query = {
       text: `
         SELECT c.id, c.content, c.date, c.is_delete, u.username
