@@ -2,10 +2,7 @@ const CommentDetail = require('../../../Domains/comments/entities/CommentDetail'
 const ReplyDetail = require('../../../Domains/replies/entities/ReplyDetail');
 const ThreadDetail = require('../../../Domains/threads/entities/ThreadDetail');
 
-const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
-
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 
 describe('GetThreadDetailUseCase', () => {
@@ -22,52 +19,23 @@ describe('GetThreadDetailUseCase', () => {
     };
 
     const mockComments = [
-      {
-        id: 'comment-123',
-        username: 'ajik',
-        date: '2021-08-08T07:22:33.555Z',
-        content: 'sebuah comment',
-        is_delete: false,
-      },
-      {
-        id: 'comment-456',
-        username: 'maoelana',
-        date: '2021-08-08T07:26:21.338Z',
-        content: 'rahasia',
-        is_delete: true,
-      },
+      { id: 'comment-123', username: 'ajik', date: '2021-08-08T07:22:33.555Z', content: 'sebuah comment', is_delete: false },
+      { id: 'comment-456', username: 'maoelana', date: '2021-08-08T07:26:21.338Z', content: 'rahasia', is_delete: true },
     ];
 
     const mockReplies = [
-      {
-        id: 'reply-1',
-        comment_id: 'comment-123',
-        username: 'dicoding',
-        date: '2021-08-08T08:00:00.000Z',
-        content: 'balasan 1',
-        is_delete: false,
-      },
-      {
-        id: 'reply-2',
-        comment_id: 'comment-123',
-        username: 'john',
-        date: '2021-08-08T09:00:00.000Z',
-        content: 'balasan 2',
-        is_delete: true,
-      },
+      { id: 'reply-1', comment_id: 'comment-123', username: 'dicoding', date: '2021-08-08T08:00:00.000Z', content: 'balasan 1', is_delete: false },
+      { id: 'reply-2', comment_id: 'comment-123', username: 'john', date: '2021-08-08T09:00:00.000Z', content: 'balasan 2', is_delete: true },
     ];
 
-    /** create mock repositories */
-    const mockThreadRepository = new ThreadRepository();
-    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new (require('../../../Domains/threads/ThreadRepository'))();
+    const mockCommentRepository = new (require('../../../Domains/comments/CommentRepository'))();
     const mockReplyRepository = new ReplyRepository();
 
-    /** mock implementation */
     mockThreadRepository.getThreadById = jest.fn().mockResolvedValue(mockThread);
     mockCommentRepository.getCommentsByThreadId = jest.fn().mockResolvedValue(mockComments);
     mockReplyRepository.getRepliesByCommentIds = jest.fn().mockResolvedValue(mockReplies);
 
-    /** create use case instance */
     const useCase = new GetThreadDetailUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
@@ -92,23 +60,10 @@ describe('GetThreadDetailUseCase', () => {
           content: 'sebuah comment',
           isDelete: false,
           replies: [
-            new ReplyDetail({
-              id: 'reply-1',
-              content: 'balasan 1',
-              date: '2021-08-08T08:00:00.000Z',
-              username: 'dicoding',
-              isDelete: false,
-            }),
-            new ReplyDetail({
-              id: 'reply-2',
-              content: 'balasan 2',
-              date: '2021-08-08T09:00:00.000Z',
-              username: 'john',
-              isDelete: true,
-            }),
+            new ReplyDetail({ id: 'reply-1', content: 'balasan 1', date: '2021-08-08T08:00:00.000Z', username: 'dicoding', isDelete: false }),
+            new ReplyDetail({ id: 'reply-2', content: 'balasan 2', date: '2021-08-08T09:00:00.000Z', username: 'john', isDelete: true }),
           ],
         }),
-
         new CommentDetail({
           id: 'comment-456',
           username: 'maoelana',
@@ -122,7 +77,6 @@ describe('GetThreadDetailUseCase', () => {
 
     expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith(threadId);
     expect(mockCommentRepository.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
-    expect(mockReplyRepository.getRepliesByCommentIds)
-      .toHaveBeenCalledWith(['comment-123', 'comment-456']);
+    expect(mockReplyRepository.getRepliesByCommentIds).toHaveBeenCalledWith(['comment-123', 'comment-456']);
   });
 });
