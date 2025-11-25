@@ -40,8 +40,8 @@ describe('CommentDetail entity', () => {
     expect(commentDetail.content).toEqual('**komentar telah dihapus**');
   });
 
-  it('should map replies into ReplyDetail instances from plain objects', () => {
-    // Arrange
+  it('should map replies into plain objects from plain objects', () => {
+  // Arrange
     const payload = {
       id: 'comment-1',
       username: 'user',
@@ -57,19 +57,13 @@ describe('CommentDetail entity', () => {
     const commentDetail = new CommentDetail(payload);
 
     // Assert
-    expect(commentDetail.replies[0]).toBeInstanceOf(ReplyDetail);
+    expect(commentDetail.replies[0]).toEqual(payload.replies[0]);
     expect(commentDetail.replies[0].id).toEqual('reply-1');
   });
 
-  it('should keep replies unchanged if already instances of ReplyDetail', () => {
-    // Arrange
-    const reply = new ReplyDetail({
-      id: 'reply-123',
-      username: 'user',
-      date: '2021',
-      content: 'reply here',
-      isDelete: false,
-    });
+  it('should keep replies unchanged if already plain objects', () => {
+  // Arrange
+    const reply = { id: 'reply-123', username: 'user', date: '2021', content: 'reply here', isDelete: false };
 
     const payload = {
       id: 'comment-123',
@@ -84,7 +78,7 @@ describe('CommentDetail entity', () => {
     const commentDetail = new CommentDetail(payload);
 
     // Assert
-    expect(commentDetail.replies[0]).toBe(reply);
+    expect(commentDetail.replies[0]).toStrictEqual(reply);
   });
 
   it('should allow empty replies array', () => {
