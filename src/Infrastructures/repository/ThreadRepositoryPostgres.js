@@ -53,7 +53,10 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       throw new NotFoundError('Thread tidak ditemukan');
     }
 
-    return result.rows[0];
+    return {
+      ...result.rows[0],
+      date: result.rows[0].date.toISOString(),
+    };
   }
 }
 
