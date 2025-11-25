@@ -9,14 +9,14 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addThread(userId, newThread) {
+  async addThread(ownerId, newThread) {
     const { title, body } = newThread;
     const id = `thread-${this._idGenerator(16)}`;
     const date = new Date().toISOString();
 
     const query = {
       text: 'INSERT INTO threads(id, title, body, owner, date) VALUES($1, $2, $3, $4, $5) RETURNING id, title, owner',
-      values: [id, title, body, userId, date],
+      values: [id, title, body, ownerId, date],
     };
 
     const result = await this._pool.query(query);
@@ -30,10 +30,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Thread tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Thread tidak ditemukan');
   }
 
   async getThreadById(threadId) {
@@ -48,10 +45,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Thread tidak ditemukan');
-    }
+    if (!result.rows.length) throw new NotFoundError('Thread tidak ditemukan');
 
     return {
       ...result.rows[0],

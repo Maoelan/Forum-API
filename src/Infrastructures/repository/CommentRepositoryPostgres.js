@@ -16,7 +16,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const date = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO comments (id, content, owner, date, thread_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      text: 'INSERT INTO comments (id, content, owner, date, thread_id) VALUES ($1,$2,$3,$4,$5) RETURNING id, content, owner',
       values: [id, content, ownerId, date, threadId],
     };
 
@@ -25,58 +25,41 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async verifyCommentOwner(commentId, ownerId) {
-    const query = {
-      text: 'SELECT owner FROM comments WHERE id = $1',
-      values: [commentId],
-    };
-
+    const query = { text: 'SELECT owner FROM comments WHERE id = $1', values: [commentId] };
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Komentar tidak ditemukan');
-    }
-
-    if (result.rows[0].owner !== ownerId) {
-      throw new AuthorizationError('Anda bukan pemilik komentar ini');
-    }
+    if (!result.rows.length) throw new NotFoundError('Komentar tidak ditemukan');
+    if (result.rows[0].owner !== ownerId) throw new AuthorizationError('Anda bukan pemilik komentar ini');
   }
 
   async checkCommentExists(commentId, threadId) {
-    const query = {
-      text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2',
-      values: [commentId, threadId],
-    };
-
+    const query = { text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2', values: [commentId, threadId] };
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError('Komentar tidak ditemukan pada thread ini');
-    }
+    if (!result.rows.length) throw new NotFoundError('Komentar tidak ditemukan pada thread ini');
   }
 
   async deleteComment(commentId) {
-    const query = {
-      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
-      values: [commentId],
-    };
-
-    await this._pool.query(query);
+    await this._pool.query({ text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1', values: [commentId] });
   }
 
   async getCommentsByThreadId(threadId) {
     const query = {
       text: `
-        SELECT c.id, c.content, c.date, c.is_delete, u.username
-        FROM comments c
-        JOIN users u ON u.id = c.owner
-        WHERE c.thread_id = $1
-        ORDER BY c.date ASC
-      `,
+      SELECT c.id, c.content, c.date, c.is_delete, u.username
+      FROM comments c
+      JOIN users u ON u.id = c.owner
+      WHERE c.thread_id = $1
+      ORDER BY c.date ASC
+    `,
       values: [threadId],
     };
 
     const result = await this._pool.query(query);
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      date: new Date(row.date),
+    }));
   }
 }
 

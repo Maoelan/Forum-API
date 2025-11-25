@@ -1,7 +1,7 @@
 const ThreadDetail = require('../ThreadDetail');
 
-describe('a ThreadDetail entities', () => {
-  it('should throw error when payload did not contain needed property', () => {
+describe('ThreadDetail entity', () => {
+  it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {
       id: 'thread-123',
@@ -9,14 +9,14 @@ describe('a ThreadDetail entities', () => {
       body: 'sebuah body',
       date: '2021-08-08T07:19:09.775Z',
       username: 'maoelana',
-      // comments missing
     };
 
-    // Action & Assert
-    expect(() => new ThreadDetail(payload)).toThrow('THREAD_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY');
+    // Act & Assert
+    expect(() => new ThreadDetail(payload))
+      .toThrow('THREAD_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
-  it('should throw error when payload did not meet data type specification', () => {
+  it('should throw error when payload does not meet data type specification', () => {
     // Arrange
     const payload = {
       id: 'thread-123',
@@ -27,8 +27,9 @@ describe('a ThreadDetail entities', () => {
       comments: [],
     };
 
-    // Action & Assert
-    expect(() => new ThreadDetail(payload)).toThrow('THREAD_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    // Act & Assert
+    expect(() => new ThreadDetail(payload))
+      .toThrow('THREAD_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create ThreadDetail object correctly', () => {
@@ -40,16 +41,11 @@ describe('a ThreadDetail entities', () => {
       date: '2021-08-08T07:19:09.775Z',
       username: 'maoelana',
       comments: [
-        {
-          id: 'comment-123',
-          username: 'ajik',
-          date: '2021-08-08T07:22:33.555Z',
-          content: 'sebuah comment',
-        },
+        { id: 'comment-123', username: 'ajik', date: '2021-08-08T07:22:33.555Z', content: 'sebuah comment' },
       ],
     };
 
-    // Action
+    // Act
     const threadDetail = new ThreadDetail(payload);
 
     // Assert
