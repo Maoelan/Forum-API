@@ -9,30 +9,33 @@ const createServer = require('../createServer');
 const container = require('../../container');
 
 describe('Replies endpoint', () => {
-  let accessToken;
+  let mockServer;
+  let mockAccessToken;
   let threadId;
   let commentId;
   let replyId;
 
   beforeAll(async () => {
+    // Clean table sebelum test
     await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
     await RepliesTableTestHelper.cleanTable();
 
-    const server = await createServer(container);
+    // Buat server
+    mockServer = await createServer(container);
 
-    // buat user
+    // Arrange: buat user
     await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
 
-    // dapatkan access token
-    accessToken = await ServerTestHelper.getAccessToken({ server, username: 'dicoding' });
+    // Arrange: dapatkan access token
+    mockAccessToken = await ServerTestHelper.getAccessToken({ server: mockServer, username: 'dicoding' });
 
-    // buat thread
+    // Arrange: buat thread
     await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
     threadId = 'thread-123';
 
-    // buat comment
+    // Arrange: buat comment
     await CommentsTableTestHelper.addComment({
       id: 'comment-123',
       threadId,
@@ -42,6 +45,7 @@ describe('Replies endpoint', () => {
   });
 
   afterAll(async () => {
+    // Clean table setelah test
     await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
@@ -51,41 +55,44 @@ describe('Replies endpoint', () => {
 
   describe('POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should create a new reply and respond with 201', async () => {
-      const server = await createServer(container);
+      // Arrange
+      const payloadReply = { content: 'Ini balasan komentar' };
 
-      const response = await server.inject({
+      // Act
+      const response = await mockServer.inject({
         method: 'POST',
         url: `/threads/${threadId}/comments/${commentId}/replies`,
-        payload: { content: 'Ini balasan komentar' },
-        headers: { Authorization: `Bearer ${accessToken}` },
+        payload: payloadReply,
+        headers: { Authorization: `Bearer ${mockAccessToken}` },
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
       replyId = responseJson.data.addedReply.id;
 
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.addedReply).toHaveProperty('id');
-      expect(responseJson.data.addedReply).toHaveProperty('content', 'Ini balasan komentar');
+      expect(responseJson.data.addedReply).toHaveProperty('content', payloadReply.content);
       expect(responseJson.data.addedReply).toHaveProperty('owner', 'user-123');
     });
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
     it('should delete the reply and respond with success', async () => {
-      const server = await createServer(container);
-
-      const response = await server.inject({
+      // Act
+      const response = await mockServer.inject({
         method: 'DELETE',
         url: `/threads/${threadId}/comments/${commentId}/replies/${replyId}`,
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${mockAccessToken}` },
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual('success');
 
-      // pastikan reply benar-benar terhapus
+      // Assert: pastikan reply benar-benar terhapus
       const replies = await RepliesTableTestHelper.findReplyById(replyId);
       expect(replies).toHaveLength(1);
       expect(replies[0].is_delete).toBe(true);
