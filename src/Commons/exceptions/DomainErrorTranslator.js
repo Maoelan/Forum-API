@@ -1,4 +1,3 @@
-// DomainErrorTranslator.js
 const InvariantError = require('./InvariantError');
 
 const DomainErrorTranslator = {
