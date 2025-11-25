@@ -1,6 +1,6 @@
 const AddedComment = require('../AddedComment');
 
-describe('an AddedComment entity', () => {
+describe('AddedComment entity', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
@@ -8,8 +8,9 @@ describe('an AddedComment entity', () => {
       content: 'sebuah content',
     };
 
-    // Action & Assert
-    expect(() => new AddedComment(payload)).toThrow('ADDED_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+    // Act & Assert
+    expect(() => new AddedComment(payload))
+      .toThrow('ADDED_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload did not meet data type specification', () => {
@@ -20,8 +21,9 @@ describe('an AddedComment entity', () => {
       owner: 'user-123',
     };
 
-    // Action & Assert
-    expect(() => new AddedComment(payload)).toThrow('ADDED_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    // Act & Assert
+    expect(() => new AddedComment(payload))
+      .toThrow('ADDED_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create AddedComment object correctly', () => {
@@ -32,7 +34,7 @@ describe('an AddedComment entity', () => {
       owner: 'user-123',
     };
 
-    // Action
+    // Act
     const { id, content, owner } = new AddedComment(payload);
 
     // Assert

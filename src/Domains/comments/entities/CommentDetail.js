@@ -3,7 +3,6 @@ const ReplyDetail = require('../../replies/entities/ReplyDetail');
 class CommentDetail {
   constructor(payload) {
     this._verifyPayload(payload);
-
     const { id, username, date, content, isDelete, replies } = payload;
     this.id = id;
     this.username = username;

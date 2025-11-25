@@ -1,40 +1,33 @@
 const NewThread = require('../NewThread');
 
-describe('a NewThread entities', () => {
-  it('should throw error when payload did not contain needed property', () => {
+describe('NewThread entity', () => {
+  it('should throw error when payload does not contain needed property', () => {
     // Arrange
-    const payload = {
-      id: 'thread-123',
-      title: 'sebuah thread',
-    };
+    const payload = { id: 'thread-123', title: 'sebuah thread' };
 
-    // Action and Assert
-    expect(() => new NewThread(payload)).toThrow('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+    // Act & Assert
+    expect(() => new NewThread(payload))
+      .toThrow('NEW_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
-  it('should throw error when payload did not meet data type specification', () => {
+  it('should throw error when payload does not meet data type specification', () => {
     // Arrange
-    const payload = {
-      title: 123,
-      body: true,
-    };
+    const payload = { title: 123, body: true };
 
-    // Action and Assert
-    expect(() => new NewThread(payload)).toThrow('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    // Act & Assert
+    expect(() => new NewThread(payload))
+      .toThrow('NEW_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
-  it('should create newThread object correctly', () => {
+  it('should create NewThread object correctly', () => {
     // Arrange
-    const payload = {
-      title: 'sebuah thread',
-      body: 'sebuah body',
-    };
+    const payload = { title: 'sebuah thread', body: 'sebuah body' };
 
-    // Action
-    const { title, body } = new NewThread(payload);
+    // Act
+    const newThread = new NewThread(payload);
 
     // Assert
-    expect(title).toEqual(payload.title);
-    expect(body).toEqual(payload.body);
+    expect(newThread.title).toEqual(payload.title);
+    expect(newThread.body).toEqual(payload.body);
   });
 });
