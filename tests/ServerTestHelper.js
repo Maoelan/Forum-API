@@ -5,8 +5,11 @@ const AuthenticationsTableTestHelper = require('./AuthenticationsTableTestHelper
 const ServerTestHelper = {
   async getAccessToken({ server, username = 'maoelana' }) {
     const payloadUser = { username, password: 'secret', fullname: 'Maulana Muhammad' };
+
+    // buat user
     await server.inject({ method: 'POST', url: '/users', payload: payloadUser });
 
+    // login user untuk dapatkan token
     const responseAuth = await server.inject({
       method: 'POST',
       url: '/authentications',

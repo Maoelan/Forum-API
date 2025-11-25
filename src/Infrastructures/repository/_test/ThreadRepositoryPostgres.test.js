@@ -77,7 +77,7 @@ describe('ThreadRepositoryPostgres', () => {
         title: 'sebuah title',
         body: 'sebuah body',
         username: 'maoelana',
-        date: expect.any(Date),
+        date: expect.any(String),
       }));
     });
 
