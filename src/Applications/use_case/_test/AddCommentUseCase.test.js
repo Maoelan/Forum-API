@@ -1,4 +1,3 @@
-// AddCommentUseCase.test.js
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');

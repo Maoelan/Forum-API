@@ -1,10 +1,9 @@
-// AddReplyUseCase.test.js
-const AddReplyUseCase = require('../AddReplyUseCase');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const AddReplyUseCase = require('../AddReplyUseCase');
 
 describe('AddReplyUseCase', () => {
   it('should orchestrate adding reply correctly', async () => {
