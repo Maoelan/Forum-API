@@ -4,9 +4,11 @@ const bcrypt = require('bcrypt');
 
 const UsersTableTestHelper = {
   async addUser({
-    id = 'user-123', username = 'dicoding', password = 'secret', fullname = 'Dicoding Indonesia',
-  }) {
-    // hash password sesuai server
+    id = 'user-123',
+    username = 'dicoding',
+    password = 'secret',
+    fullname = 'Dicoding Indonesia',
+  } = {}) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = {
@@ -18,11 +20,7 @@ const UsersTableTestHelper = {
   },
 
   async findUsersById(id) {
-    const query = {
-      text: 'SELECT * FROM users WHERE id = $1',
-      values: [id],
-    };
-
+    const query = { text: 'SELECT * FROM users WHERE id = $1', values: [id] };
     const result = await pool.query(query);
     return result.rows;
   },

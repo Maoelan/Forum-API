@@ -1,23 +1,9 @@
 class CommentRepository {
-  async addComment(ownerId, threadId, newComment) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
-  async verifyCommentOwner(commentId, ownerId) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
-  async checkCommentExists(commentId, threadId) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
-  async deleteComment(commentId) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
-  async getCommentsByThreadId(threadId) {
-    throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
+  async addComment() { throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'); }
+  async verifyCommentOwner() { throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'); }
+  async checkCommentExists() { throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'); }
+  async deleteComment() { throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'); }
+  async getCommentsByThreadId() { throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED'); }
 }
 
 module.exports = CommentRepository;

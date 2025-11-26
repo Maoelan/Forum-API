@@ -7,13 +7,13 @@ exports.up = (pgm) => {
     comment_id: {
       type: 'VARCHAR(50)',
       notNull: true,
-      references: '"comments"(id)',
+      references: 'comments(id)',
       onDelete: 'CASCADE',
     },
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,
-      references: '"users"(id)',
+      references: 'users(id)',
       onDelete: 'CASCADE',
     },
     content: {
@@ -27,7 +27,7 @@ exports.up = (pgm) => {
     },
     is_delete: {
       type: 'BOOLEAN',
-      notNull: false,
+      notNull: true,
       default: false,
     },
   });

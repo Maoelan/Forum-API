@@ -1,15 +1,14 @@
-const ReplyDetail = require('../../replies/entities/ReplyDetail');
-
 class CommentDetail {
   constructor(payload) {
     this._verifyPayload(payload);
-
     const { id, username, date, content, isDelete, replies } = payload;
+
     this.id = id;
     this.username = username;
-    this.date = date;
+    this.date = date instanceof Date ? date.toISOString() : date;
     this.content = isDelete ? '**komentar telah dihapus**' : content;
-    this.replies = replies.map((reply) => (reply instanceof ReplyDetail ? reply : new ReplyDetail(reply)));
+
+    this.replies = replies;
   }
 
   _verifyPayload({ id, username, date, content, isDelete, replies }) {

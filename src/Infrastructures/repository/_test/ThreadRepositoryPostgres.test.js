@@ -30,9 +30,10 @@ describe('ThreadRepositoryPostgres', () => {
         body: 'sebuah body',
       });
 
-      // Action & Assert
+      // Action
       const addedThread = await threadRepositoryPostgres.addThread(userId, newThread);
 
+      // Assert
       const thread = await ThreadsTableTestHelper.findThreadById('thread-123');
       expect(thread).toHaveLength(1);
       expect(addedThread).toStrictEqual(new AddedThread({
@@ -54,8 +55,7 @@ describe('ThreadRepositoryPostgres', () => {
 
     it('should throw NotFoundError when thread does not exist', async () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-      await expect(threadRepositoryPostgres.verifyThreadExists('thread-xyz'))
-        .rejects.toThrow(NotFoundError);
+      await expect(threadRepositoryPostgres.verifyThreadExists('thread-xyz')).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -77,14 +77,13 @@ describe('ThreadRepositoryPostgres', () => {
         title: 'sebuah title',
         body: 'sebuah body',
         username: 'maoelana',
-        date: expect.any(String),
+        date: thread.date,
       }));
     });
 
     it('should throw NotFoundError when thread is not found', async () => {
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-      await expect(threadRepositoryPostgres.getThreadById('thread-xyz'))
-        .rejects.toThrow(NotFoundError);
+      await expect(threadRepositoryPostgres.getThreadById('thread-xyz')).rejects.toThrow(NotFoundError);
     });
   });
 });

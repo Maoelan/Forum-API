@@ -1,44 +1,52 @@
 const ReplyRepository = require('../ReplyRepository');
 
 describe('ReplyRepository interface', () => {
-  it('should throw error when invoke abstract behavior addReply', async () => {
+  it('should throw error when invoking abstract behavior addReply', async () => {
     // Arrange
-    const replyRepository = new ReplyRepository();
+    const mockReplyRepository = new ReplyRepository();
 
-    // Action & Assert
-    await expect(replyRepository.addReply('owner-123', 'comment-123', {}))
+    // Act & Assert
+    await expect(mockReplyRepository.addReply('owner-123', 'comment-123', {}))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 
-  it('should throw error when invoke abstract behavior verifyReplyOwner', async () => {
-    const replyRepository = new ReplyRepository();
+  it('should throw error when invoking abstract behavior verifyReplyOwner', async () => {
+    // Arrange
+    const mockReplyRepository = new ReplyRepository();
 
-    await expect(replyRepository.verifyReplyOwner('reply-123', 'owner-123'))
+    // Act & Assert
+    await expect(mockReplyRepository.verifyReplyOwner('reply-123', 'owner-123'))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 
-  it('should throw error when invoke abstract behavior checkReplyExists', async () => {
-    const replyRepository = new ReplyRepository();
+  it('should throw error when invoking abstract behavior checkReplyExists', async () => {
+    // Arrange
+    const mockReplyRepository = new ReplyRepository();
 
-    await expect(replyRepository.checkReplyExists('reply-123', 'comment-123'))
+    // Act & Assert
+    await expect(mockReplyRepository.checkReplyExists('reply-123', 'comment-123'))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 
-  it('should throw error when invoke abstract behavior deleteReply', async () => {
-    const replyRepository = new ReplyRepository();
+  it('should throw error when invoking abstract behavior deleteReply', async () => {
+    // Arrange
+    const mockReplyRepository = new ReplyRepository();
 
-    await expect(replyRepository.deleteReply('reply-123'))
+    // Act & Assert
+    await expect(mockReplyRepository.deleteReply('reply-123'))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 
-  it('should throw error when invoke abstract behavior getRepliesByCommentIds', async () => {
-    const replyRepository = new ReplyRepository();
+  it('should throw error when invoking abstract behavior getRepliesByCommentIds', async () => {
+    // Arrange
+    const mockReplyRepository = new ReplyRepository();
 
-    await expect(replyRepository.getRepliesByCommentIds(['comment-123']))
+    // Act & Assert
+    await expect(mockReplyRepository.getRepliesByCommentIds(['comment-123']))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });

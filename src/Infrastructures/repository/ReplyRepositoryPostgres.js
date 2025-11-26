@@ -16,7 +16,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const date = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO replies(id, content, owner, comment_id, date) VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
+      text: 'INSERT INTO replies(id, content, owner, comment_id, date) VALUES($1,$2,$3,$4,$5) RETURNING id, content, owner',
       values: [id, content, ownerId, commentId, date],
     };
 
@@ -25,19 +25,11 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async verifyReplyOwner(replyId, ownerId) {
-    const query = {
-      text: 'SELECT owner FROM replies WHERE id = $1',
-      values: [replyId],
-    };
-
+    const query = { text: 'SELECT owner FROM replies WHERE id = $1', values: [replyId] };
     const result = await this._pool.query(query);
-    if (!result.rows.length) {
-      throw new NotFoundError('Balasan tidak ditemukan');
-    }
 
-    if (result.rows[0].owner !== ownerId) {
-      throw new AuthorizationError('Anda bukan pemilik balasan ini');
-    }
+    if (!result.rows.length) throw new NotFoundError('Balasan tidak ditemukan');
+    if (result.rows[0].owner !== ownerId) throw new AuthorizationError('Anda bukan pemilik balasan ini');
   }
 
   async checkReplyExists(replyId, commentId) {
@@ -47,38 +39,32 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    if (!result.rows.length) {
-      throw new NotFoundError('Balasan tidak ditemukan pada komentar ini');
-    }
+    if (!result.rows.length) throw new NotFoundError('Balasan tidak ditemukan pada komentar ini');
   }
 
   async deleteReply(replyId) {
-    const query = {
+    await this._pool.query({
       text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
       values: [replyId],
-    };
-    await this._pool.query(query);
+    });
   }
 
   async getRepliesByCommentIds(commentIds) {
-    if (!commentIds.length) {
-      return [];
-    }
+    if (!commentIds.length) return [];
 
     const query = {
-      text: `SELECT re.id, re.content, re.date, u.username, re.comment_id, re.is_delete
-           FROM replies re
-           JOIN users u ON u.id = re.owner
-           WHERE re.comment_id = ANY($1::text[])
-           ORDER BY re.date ASC`,
+      text: `
+        SELECT re.id, re.content, re.date, u.username, re.comment_id, re.is_delete
+        FROM replies re
+        JOIN users u ON u.id = re.owner
+        WHERE re.comment_id = ANY($1::text[])
+        ORDER BY re.date ASC
+      `,
       values: [commentIds],
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map(row => ({
-      ...row,
-      date: row.date.toISOString(),
-    }));
+    return result.rows;
   }
 }
 
