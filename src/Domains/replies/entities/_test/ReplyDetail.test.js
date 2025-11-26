@@ -52,4 +52,33 @@ describe('ReplyDetail entity', () => {
     // Assert
     expect(replyDetail.content).toEqual('**balasan telah dihapus**');
   });
+
+  it('should convert date to ISO string when date is Date object', () => {
+  // Arrange
+    const payload = { id: 'reply-123', content: 'balasan', date: new Date('2024-01-01'), username: 'maoelana', isDelete: false };
+
+    // Act
+    const replyDetail = new ReplyDetail(payload);
+
+    // Assert
+    expect(replyDetail.date).toEqual(payload.date.toISOString());
+  });
+
+  it('should throw error if content is not string when isDelete is false', () => {
+  // Arrange
+    const payload = { id: 'reply-123', content: 123, date: '2024-01-01', username: 'maoelana', isDelete: false };
+
+    // Act & Assert
+    expect(() => new ReplyDetail(payload))
+      .toThrow('REPLY_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
+
+  it('should throw error if username is not string', () => {
+  // Arrange
+    const payload = { id: 'reply-123', content: 'balasan', date: '2024-01-01', username: 123, isDelete: false };
+
+    // Act & Assert
+    expect(() => new ReplyDetail(payload))
+      .toThrow('REPLY_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
 });
