@@ -54,7 +54,7 @@ describe('ReplyDetail entity', () => {
   });
 
   it('should convert date to ISO string when date is Date object', () => {
-  // Arrange
+    // Arrange
     const payload = { id: 'reply-123', content: 'balasan', date: new Date('2024-01-01'), username: 'maoelana', isDelete: false };
 
     // Act
@@ -65,7 +65,7 @@ describe('ReplyDetail entity', () => {
   });
 
   it('should throw error if content is not string when isDelete is false', () => {
-  // Arrange
+    // Arrange
     const payload = { id: 'reply-123', content: 123, date: '2024-01-01', username: 'maoelana', isDelete: false };
 
     // Act & Assert
@@ -74,11 +74,36 @@ describe('ReplyDetail entity', () => {
   });
 
   it('should throw error if username is not string', () => {
-  // Arrange
+    // Arrange
     const payload = { id: 'reply-123', content: 'balasan', date: '2024-01-01', username: 123, isDelete: false };
 
     // Act & Assert
     expect(() => new ReplyDetail(payload))
       .toThrow('REPLY_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
+
+  it('should throw error when date is not string or Date object', () => {
+    // Arrange
+    const payload = { id: 'reply-123', content: 'balasan', date: 123, username: 'maoelana', isDelete: false };
+    expect(() => new ReplyDetail(payload))
+      .toThrow('REPLY_DETAIL.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
+
+  it('should throw error when id is empty string', () => {
+    // Arrange
+    const payload = { id: '', content: 'balasan', date: '2024-01-01', username: 'maoelana', isDelete: false };
+
+    // Act & Assert
+    expect(() => new ReplyDetail(payload))
+      .toThrow('REPLY_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+  it('should throw error when username is empty string', () => {
+    // Arrange
+    const payload = { id: 'reply-123', content: 'balasan', date: '2024-01-01', username: '', isDelete: false };
+
+    // Act & Assert
+    expect(() => new ReplyDetail(payload))
+      .toThrow('REPLY_DETAIL.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 });
