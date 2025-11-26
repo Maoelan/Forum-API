@@ -89,7 +89,7 @@ describe('ReplyRepositoryPostgres', () => {
         {
           id: 'reply-1',
           content: 'reply 1',
-          date: new Date('2023-01-01T00:00:00.000Z'),
+          date: new Date('2023-01-01T00:00:00.000Z').toISOString(),
           username: 'user1',
           comment_id: 'comment-1',
           is_delete: false,
