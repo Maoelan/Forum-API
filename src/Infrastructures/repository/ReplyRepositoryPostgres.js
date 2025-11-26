@@ -33,14 +33,20 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async checkReplyExists(replyId, commentId) {
-    const query = { text: 'SELECT id FROM replies WHERE id = $1 AND comment_id = $2', values: [replyId, commentId] };
-    const result = await this._pool.query(query);
+    const query = {
+      text: 'SELECT id FROM replies WHERE id = $1 AND comment_id = $2',
+      values: [replyId, commentId],
+    };
 
+    const result = await this._pool.query(query);
     if (!result.rows.length) throw new NotFoundError('Balasan tidak ditemukan pada komentar ini');
   }
 
   async deleteReply(replyId) {
-    await this._pool.query({ text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1', values: [replyId] });
+    await this._pool.query({
+      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
+      values: [replyId],
+    });
   }
 
   async getRepliesByCommentIds(commentIds) {
@@ -58,7 +64,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map(row => ({ ...row, date: row.date.toISOString() }));
+    return result.rows;
   }
 }
 

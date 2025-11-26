@@ -33,33 +33,36 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async checkCommentExists(commentId, threadId) {
-    const query = { text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2', values: [commentId, threadId] };
-    const result = await this._pool.query(query);
+    const query = {
+      text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2',
+      values: [commentId, threadId],
+    };
 
+    const result = await this._pool.query(query);
     if (!result.rows.length) throw new NotFoundError('Komentar tidak ditemukan pada thread ini');
   }
 
   async deleteComment(commentId) {
-    await this._pool.query({ text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1', values: [commentId] });
+    await this._pool.query({
+      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
+      values: [commentId],
+    });
   }
 
   async getCommentsByThreadId(threadId) {
     const query = {
       text: `
-      SELECT c.id, c.content, c.date, c.is_delete, u.username
-      FROM comments c
-      JOIN users u ON u.id = c.owner
-      WHERE c.thread_id = $1
-      ORDER BY c.date ASC
-    `,
+        SELECT c.id, c.content, c.date, c.is_delete, u.username
+        FROM comments c
+        JOIN users u ON u.id = c.owner
+        WHERE c.thread_id = $1
+        ORDER BY c.date ASC
+      `,
       values: [threadId],
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map(row => ({
-      ...row,
-      date: new Date(row.date),
-    }));
+    return result.rows;
   }
 }
 
