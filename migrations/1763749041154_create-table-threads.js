@@ -19,7 +19,7 @@ exports.up = (pgm) => {
       onDelete: 'CASCADE',
     },
     date: {
-      type: 'TIMESTAMP',
+      type: 'TIMESTAMPTZ',
       notNull: true,
       default: pgm.func('CURRENT_TIMESTAMP'),
     },

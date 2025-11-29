@@ -1,118 +1,158 @@
-const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
-const AddedReply = require('../../../Domains/replies/entities/AddedReply');
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
+const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const NewReply = require('../../../Domains/replies/entities/NewReply');
+const AddedReply = require('../../../Domains/replies/entities/AddedReply');
+const pool = require('../../database/postgres/pool');
+const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 
 describe('ReplyRepositoryPostgres', () => {
-  let pool;
-  let idGenerator;
   let replyRepo;
 
-  beforeEach(() => {
-    pool = { query: jest.fn() };
-    idGenerator = jest.fn().mockReturnValue('123');
-    replyRepo = new ReplyRepositoryPostgres(pool, idGenerator);
+  beforeEach(async () => {
+    await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+
+    replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
+  });
+
+  afterAll(async () => {
+    await RepliesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+    await pool.end();
   });
 
   describe('addReply', () => {
-    it('should persist add reply and return added reply correctly', async () => {
+    it('should persist new reply and return added reply correctly', async () => {
       // Arrange
-      const ownerId = 'user-1';
-      const commentId = 'comment-1';
-      const newReply = { content: 'sebuah reply' };
-      const expectedReply = { id: 'reply-123', content: 'sebuah reply', owner: ownerId };
-
-      pool.query.mockResolvedValue({ rows: [expectedReply] });
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      const newReply = new NewReply({ content: 'sebuah reply' });
 
       // Act
-      const result = await replyRepo.addReply(ownerId, commentId, newReply);
+      const addedReply = await replyRepo.addReply('user-123', 'comment-123', newReply);
 
       // Assert
-      expect(result).toStrictEqual(new AddedReply(expectedReply));
-      expect(pool.query).toHaveBeenCalledWith(expect.objectContaining({
-        text: expect.any(String),
-        values: expect.arrayContaining([expectedReply.id, newReply.content, ownerId, commentId, expect.any(String)]),
+      const reply = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(reply).toHaveLength(1);
+      expect(addedReply).toStrictEqual(new AddedReply({
+        id: 'reply-123',
+        content: 'sebuah reply',
+        owner: 'user-123',
       }));
     });
   });
 
   describe('verifyReplyOwner', () => {
-    it('should throw NotFoundError when reply not found', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
-      await expect(replyRepo.verifyReplyOwner('reply-1', 'user-1')).rejects.toThrow(NotFoundError);
+    it('should throw NotFoundError if reply does not exist', async () => {
+      // Arrange, Act & Assert
+      await expect(replyRepo.verifyReplyOwner('reply-404', 'user-123')).rejects.toThrow(NotFoundError);
     });
 
-    it('should throw AuthorizationError when owner mismatch', async () => {
-      pool.query.mockResolvedValue({ rows: [{ owner: 'user-2' }] });
-      await expect(replyRepo.verifyReplyOwner('reply-1', 'user-1')).rejects.toThrow(AuthorizationError);
+    it('should throw AuthorizationError if reply is not owned by user', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await UsersTableTestHelper.addUser({ id: 'user-456', username: 'user-456' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+
+      // Act & Assert
+      await expect(replyRepo.verifyReplyOwner('reply-123', 'user-456')).rejects.toThrow(AuthorizationError);
     });
 
-    it('should not throw error when owner matches', async () => {
-      pool.query.mockResolvedValue({ rows: [{ owner: 'user-1' }] });
-      await expect(replyRepo.verifyReplyOwner('reply-1', 'user-1')).resolves.not.toThrow();
+    it('should not throw error if reply is owned by user', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+
+      // Act & Assert
+      await expect(replyRepo.verifyReplyOwner('reply-123', 'user-123')).resolves.not.toThrow();
     });
   });
 
   describe('checkReplyExists', () => {
-    it('should throw NotFoundError when reply does not exist', async () => {
-      pool.query.mockResolvedValue({ rows: [] });
-      await expect(replyRepo.checkReplyExists('reply-1', 'comment-1')).rejects.toThrow(NotFoundError);
+    it('should throw NotFoundError if reply does not exist in comment', async () => {
+      // Arrange, Act & Assert
+      await expect(replyRepo.checkReplyExists('reply-404', 'comment-123')).rejects.toThrow(NotFoundError);
     });
 
-    it('should not throw error when reply exists', async () => {
-      pool.query.mockResolvedValue({ rows: [{ id: 'reply-1' }] });
-      await expect(replyRepo.checkReplyExists('reply-1', 'comment-1')).resolves.not.toThrow();
+    it('should not throw error if reply exists in comment', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+
+      // Act & Assert
+      await expect(replyRepo.checkReplyExists('reply-123', 'comment-123')).resolves.not.toThrow();
     });
   });
 
   describe('deleteReply', () => {
-    it('should run delete query correctly', async () => {
-      pool.query.mockResolvedValue({});
-      await replyRepo.deleteReply('reply-1');
-      expect(pool.query).toHaveBeenCalledWith({
-        text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
-        values: ['reply-1'],
-      });
+    it('should soft delete the reply', async () => {
+      // Arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ id: 'reply-123', commentId: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+
+      // Act
+      await replyRepo.deleteReply('reply-123');
+
+      // Assert
+      const reply = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(reply[0].is_delete).toBe(true);
     });
   });
 
   describe('getRepliesByCommentIds', () => {
     it('should return empty array when commentIds is empty', async () => {
+      // Arrange & Act
       const result = await replyRepo.getRepliesByCommentIds([]);
+
+      // Assert
       expect(result).toEqual([]);
     });
 
     it('should return replies correctly', async () => {
       // Arrange
-      const commentIds = ['comment-1', 'comment-2'];
-      const rawReplies = [
-        {
-          id: 'reply-1',
-          content: 'reply 1',
-          date: new Date('2023-01-01T00:00:00.000Z').toISOString(),
-          username: 'user1',
-          comment_id: 'comment-1',
-          is_delete: false,
-        },
-      ];
-      pool.query.mockResolvedValue({ rows: rawReplies });
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
+      await UsersTableTestHelper.addUser({ id: 'user-456', username: 'user-456' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-2', threadId: 'thread-123', owner: 'user-456' });
+      await RepliesTableTestHelper.addReply({
+        id: 'reply-123',
+        commentId: 'comment-123',
+        threadId: 'thread-123',
+        owner: 'user-123',
+        content: 'reply 1',
+      });
+
+      const commentIds = ['comment-123', 'comment-2'];
 
       // Act
-      const result = await replyRepo.getRepliesByCommentIds(commentIds);
+      const replies = await replyRepo.getRepliesByCommentIds(commentIds);
 
       // Assert
-      expect(result).toHaveLength(1);
-      expect(result[0]).toMatchObject({
-        id: 'reply-1',
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toMatchObject({
+        id: 'reply-123',
         content: 'reply 1',
-        username: 'user1',
-        comment_id: 'comment-1',
+        comment_id: 'comment-123',
         is_delete: false,
-        date: '2023-01-01T00:00:00.000Z',
       });
-      expect(pool.query).toHaveBeenCalledWith(expect.objectContaining({
-        values: [commentIds],
-      }));
     });
   });
 });

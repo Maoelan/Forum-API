@@ -47,6 +47,7 @@ describe('CommentRepositoryPostgres', () => {
 
   describe('verifyCommentOwner', () => {
     it('should throw NotFoundError if comment does not exist', async () => {
+      // Arrange & Act & Assert
       await expect(repo.verifyCommentOwner('comment-404', 'user-123')).rejects.toThrow(NotFoundError);
     });
 
@@ -84,6 +85,7 @@ describe('CommentRepositoryPostgres', () => {
 
   describe('checkCommentExists', () => {
     it('should throw NotFoundError if comment not exist in thread', async () => {
+      // Arrange & Act & Assert
       await expect(repo.checkCommentExists('comment-404', 'thread-123')).rejects.toThrow(NotFoundError);
     });
 
@@ -131,12 +133,15 @@ describe('CommentRepositoryPostgres', () => {
       await UsersTableTestHelper.addUser({ id: 'user-456', username: 'ajik' });
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
 
+      const firstCommentDate = new Date('2021-08-08T07:22:33.555Z');
+      const secondCommentDate = new Date('2021-08-08T07:26:21.338Z');
+
       await CommentsTableTestHelper.addComment({
         id: 'comment-123',
         owner: 'user-456',
         threadId: 'thread-123',
         content: 'first comment',
-        date: '2021-08-08T07:22:33.555Z',
+        date: firstCommentDate.toISOString(),
         isDelete: false,
       });
       await CommentsTableTestHelper.addComment({
@@ -144,7 +149,7 @@ describe('CommentRepositoryPostgres', () => {
         owner: 'user-123',
         threadId: 'thread-123',
         content: 'second comment',
-        date: '2021-08-08T07:26:21.338Z',
+        date: secondCommentDate.toISOString(),
         isDelete: true,
       });
 
@@ -159,14 +164,15 @@ describe('CommentRepositoryPostgres', () => {
         content: 'first comment',
         is_delete: false,
       });
-      expect(comments[0].date).toBeInstanceOf(Date);
+      expect(comments[0].date.toISOString()).toEqual(firstCommentDate.toISOString());
+
       expect(comments[1]).toMatchObject({
         id: 'comment-2',
         username: 'maoelana',
         content: 'second comment',
         is_delete: true,
       });
-      expect(comments[1].date).toBeInstanceOf(Date);
+      expect(comments[1].date.toISOString()).toEqual(secondCommentDate.toISOString());
     });
   });
 });
