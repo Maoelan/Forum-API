@@ -52,6 +52,6 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: mysecretpassword
           PGDATABASE: forumapi_test
-          ACCESS_TOKEN_KEY: terces
-          REFRESH_TOKEN_KEY: terces
-          ACCESS_TOKEN_AGE: 3600
+          ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
+          REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
+          ACCESS_TOKEN_AGE: ${{ secrets.ACCESS_TOKEN_AGE }}
