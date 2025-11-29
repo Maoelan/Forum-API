@@ -6,3 +6,5 @@ coverage
 .env
 .test.env
 forum-api-webserver-sub.pem
+nginx.conf
+link
