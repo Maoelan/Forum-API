@@ -1,17 +1,30 @@
+// AddReplyUseCase.test.js
 const AddReplyUseCase = require('../AddReplyUseCase');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
+const AddedReply = require('../../../Domains/replies/entities/AddedReply');
+const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 
 describe('AddReplyUseCase', () => {
-  it('should orchestrate the add reply action correctly', async () => {
+  it('should orchestrate adding reply correctly', async () => {
     // Arrange
     const payload = { threadId: 'thread-123', commentId: 'comment-123', content: 'ini balasan dari user' };
     const ownerId = 'user-123';
 
-    const expectedAddedReply = { id: 'reply-123', content: payload.content, owner: ownerId };
+    const mockAddedReply = new AddedReply({
+      id: 'reply-123',
+      content: payload.content,
+      owner: ownerId,
+    });
 
-    const mockThreadRepository = { verifyThreadExists: jest.fn().mockResolvedValue() };
-    const mockCommentRepository = { checkCommentExists: jest.fn().mockResolvedValue() };
-    const mockReplyRepository = { addReply: jest.fn().mockResolvedValue(expectedAddedReply) };
+    const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
+
+    mockThreadRepository.verifyThreadExists = jest.fn(() => Promise.resolve());
+    mockCommentRepository.checkCommentExists = jest.fn(() => Promise.resolve());
+    mockReplyRepository.addReply = jest.fn(() => Promise.resolve(mockAddedReply));
 
     const addReplyUseCase = new AddReplyUseCase({
       threadRepository: mockThreadRepository,
@@ -20,12 +33,18 @@ describe('AddReplyUseCase', () => {
     });
 
     // Act
-    const result = await addReplyUseCase.execute(ownerId, payload);
+    const addedReply = await addReplyUseCase.execute(ownerId, payload);
 
     // Assert
-    expect(result).toEqual(expectedAddedReply);
+    expect(addedReply).toStrictEqual(new AddedReply({
+      id: 'reply-123',
+      content: payload.content,
+      owner: ownerId,
+    }));
+
     expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(payload.threadId);
-    expect(mockCommentRepository.checkCommentExists).toHaveBeenCalledWith(payload.commentId, payload.threadId);
+    expect(mockCommentRepository.checkCommentExists)
+      .toHaveBeenCalledWith(payload.commentId, payload.threadId);
     expect(mockReplyRepository.addReply)
       .toHaveBeenCalledWith(ownerId, payload.commentId, new NewReply({ content: payload.content }));
   });

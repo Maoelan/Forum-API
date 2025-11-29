@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node src/app.js",
+    "start:prod": "node src/app.js",
     "start:dev": "nodemon src/app.js",
     "test": "jest --setupFiles dotenv/config -i",
     "test:watch:change": "jest --watch --setupFiles dotenv/config -i",
